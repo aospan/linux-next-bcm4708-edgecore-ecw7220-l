@@ -44,8 +44,6 @@ static int iproc_pcie_bcma_probe(struct bcma_device *bdev)
 {
 	struct device *dev = &bdev->dev;
 	struct iproc_pcie *pcie;
-	LIST_HEAD(res);
-	struct resource res_mem;
 	int ret;
 
 	pcie = devm_kzalloc(dev, sizeof(*pcie), GFP_KERNEL);
@@ -62,20 +60,20 @@ static int iproc_pcie_bcma_probe(struct bcma_device *bdev)
 	}
 
 	pcie->base_addr = bdev->addr;
+	INIT_LIST_HEAD(&pcie->resources);
 
-	res_mem.start = bdev->addr_s[0];
-	res_mem.end = bdev->addr_s[0] + SZ_128M - 1;
-	res_mem.name = "PCIe MEM space";
-	res_mem.flags = IORESOURCE_MEM;
-	pci_add_resource(&res, &res_mem);
+	pcie->res_mem.start = bdev->addr_s[0];
+	pcie->res_mem.end = bdev->addr_s[0] + SZ_128M - 1;
+	pcie->res_mem.name = "PCIe MEM space";
+	pcie->res_mem.flags = IORESOURCE_MEM;
+	pcie->res_mem.child = NULL;
+	pci_add_resource(&pcie->resources, &pcie->res_mem);
 
 	pcie->map_irq = iproc_pcie_bcma_map_irq;
 
-	ret = iproc_pcie_setup(pcie, &res);
+	ret = iproc_pcie_setup(pcie, &pcie->resources);
 	if (ret)
 		dev_err(dev, "PCIe controller setup failed\n");
-
-	pci_free_resource_list(&res);
 
 	bcma_set_drvdata(bdev, pcie);
 	return ret;

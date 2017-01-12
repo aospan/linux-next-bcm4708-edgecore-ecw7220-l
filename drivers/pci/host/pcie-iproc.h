@@ -105,6 +105,8 @@ struct iproc_pcie {
 
 	bool need_msi_steer;
 	struct iproc_msi *msi;
+	struct resource res_mem;
+	struct list_head resources;
 };
 
 int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res);
