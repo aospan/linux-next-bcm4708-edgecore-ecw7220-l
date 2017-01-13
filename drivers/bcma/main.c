@@ -301,6 +301,11 @@ void bcma_init_bus(struct bcma_bus *bus)
 static void bcma_register_core(struct bcma_bus *bus, struct bcma_device *core)
 {
 	int err;
+	struct device * dev;
+
+	dev = bcma_bus_get_host_dev(bus);
+	if (dev && !core->dev.of_node)
+		core->dev.of_node = dev->of_node;
 
 	err = device_register(&core->dev);
 	if (err) {
