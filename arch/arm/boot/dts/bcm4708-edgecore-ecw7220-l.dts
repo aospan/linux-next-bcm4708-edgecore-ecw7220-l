@@ -1,0 +1,87 @@
+/*
+ * Broadcom BCM470X / BCM5301X ARM platform code.
+ * DTS for Edgecore ECW7220-L wifi access point
+ *
+ * Copyright (C) 2017 Abylay Ospan <aospan@netup.ru>
+ *
+ * Licensed under the GNU/GPL. See COPYING for details.
+ */
+
+/dts-v1/;
+
+#include "bcm4708.dtsi"
+
+/ {
+	compatible = "edgecore,ecw7220-l", "brcm,bcm4708";
+	model = "Edgecore ECW7220-L";
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		reg = <0x80000000 0x10000000>;
+	};
+};
+
+&uart0 {
+	clock-frequency = <62499840>;
+	status = "okay";
+};
+
+&uart1 {
+	clock-frequency = <62499840>;
+	status = "okay";
+};
+
+/* TODO: check ECC parameters
+ * move to separate file
+*/
+&nand { 
+	nandcs@0 {
+		compatible = "brcm,nandcs";
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		nand-ecc-algo = "bch";
+		nand-ecc-strength = <1>;
+		nand-ecc-step-size = <512>;
+
+		partition@0 {
+			label = "boot";
+			reg = <0x00000000 0x100000>;
+			read-only;
+		};
+		partition@1 {
+			label = "nvram";
+			reg = <0x00100000 0x00020000>;
+		};
+		partition@2 {
+			label = "boot_env";
+			reg = <0x00120000 0x00020000>;
+		};
+		partition@3 {
+			label = "log";
+			reg = <0x00140000 0x00040000>;
+		};
+		partition@4 {
+			label = "onie";
+			reg = <0x00180000 0x00500000>;
+		};
+
+		partition@5 {
+			label = "open";
+			reg = <0x00680000 0x07980000>;
+		};
+		partition@6 {
+			label = "ubi_rootfs";
+			reg = <0x01080000 0x06F80000>;
+		};
+	};
+};
