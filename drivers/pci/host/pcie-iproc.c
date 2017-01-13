@@ -952,6 +952,9 @@ static int pci_dma_range_parser_init(struct of_pci_range_parser *parser,
 	const int na = 3, ns = 2;
 	int rlen;
 
+	if (!node)
+		return -ENOENT;
+
 	parser->node = node;
 	parser->pna = of_n_addr_cells(node);
 	parser->np = parser->pna + na + ns;
