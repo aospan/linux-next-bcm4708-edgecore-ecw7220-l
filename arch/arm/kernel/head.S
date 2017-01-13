@@ -27,6 +27,9 @@
 #include CONFIG_DEBUG_LL_INCLUDE
 #endif
 
+#define SOC_ROM_BASE_PA   0xffff0000
+#define SOC_ROM_LUT_OFF   0x400
+
 /*
  * swapper_pg_dir is the virtual address of the initial page table.
  * We place the page tables 16K below KERNEL_RAM_VADDR.  Therefore, we must
@@ -90,6 +93,15 @@ ENTRY(stext)
 #endif
 	@ ensure svc mode and all interrupts masked
 	safe_svcmode_maskall r9
+
+	/* force second CPU to TWI/TWE 
+	 * without this 'hack' second CPU fail to go online later
+	*/
+	ldr r1, =SOC_ROM_BASE_PA
+	ldr r0, =0xffff1234
+	ldr r0, =0xffff002c
+	str r0, [r1, #SOC_ROM_LUT_OFF]
+	nop
 
 	mrc	p15, 0, r9, c0, c0		@ get processor id
 	bl	__lookup_processor_type		@ r5=procinfo r9=cpuid
